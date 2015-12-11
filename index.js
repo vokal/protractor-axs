@@ -2,27 +2,24 @@
 
 var q = require( "q" );
 var fs = require( "fs" );
+var chalk = require( "chalk" );
 
 /**
- * You can audit your website against the Chrome Accessibility Developer Tools,
- * Tenon.io, or both by enabling this plugin in your config file:
+ * You can audit your website against the Chrome Accessibility Developer Tools
+ * by enabling this plugin in your config file:
  *
  *    // Chrome Accessibility Developer Tools:
  *    exports.config = {
  *      ...
  *      plugins: [{
  *        chromeA11YDevTools: {
- *          treatWarningsAsFailures: true
+ *          treatWarningsAsFailures: true,
+ *          axsConfig: {}
  *        },
  *        path: 'node_modules/protractor.plugins/accessiblity'
  *      }]
  *    }
-  *
  */
-
-var AUDIT_FILE = require.resolve( "accessibility-developer-tools/dist/js/axs_testing.js" );
-var auditScript = fs.readFileSync( AUDIT_FILE, "utf-8" ) + " return axs.Audit.run();";
-var failCollector = [];
 
 var trimText = function ( text, elementStringLength )
 {
@@ -37,6 +34,9 @@ var trimText = function ( text, elementStringLength )
     }
 };
 
+var failCollector = [];
+var AUDIT_FILE = require.resolve( "accessibility-developer-tools/dist/js/axs_testing.js" );
+
 /**
  * Audits page source against the Chrome Accessibility Developer Tools, if configured.
  *
@@ -47,6 +47,8 @@ var trimText = function ( text, elementStringLength )
 var runChromeDevTools = function ( context )
 {
     var elementStringLength = 200;
+    var auditScript = fs.readFileSync( AUDIT_FILE, "utf-8" )
+        + " return axs.Audit.run( new axs.AuditConfiguration( " + context.config.chromeA11YDevTools.axsConfig + " ) );";
 
     var testHeader = "Chrome A11Y - ";
 
@@ -91,19 +93,16 @@ var runChromeDevTools = function ( context )
                 {
                     if( result.result === "FAIL" )
                     {
-                        var label = result.elementCount === 1 ? " element " : " elements ";
-                        if( result.rule.severity !== "Warning"
-                            || context.config.chromeA11YDevTools.treatWarningsAsFailures )
+                        result.warning = result.rule.severity === "Warning"
+                            && !context.config.chromeA11YDevTools.treatWarningsAsFailures;
+
+                        if( result.warning )
                         {
-                            result.warning = false;
+                            result.rule.heading =
+                                chalk.red( result.rule.heading + " (" + result.elementCount + " failed)" );
                         }
-                        else
-                        {
-                            result.warning = true;
-                            result.rule.heading = "\x1b[33m(WARNING) "
-                            + result.rule.heading + " (" + result.elementCount + label + "failed)";
-                        }
-                        result.output = "\n  " + result.elementCount + label + "failed:";
+
+                        result.output = chalk.red( "\n  " + result.elementCount + " failed:" );
 
                         // match elements returned via promises by their failure codes
                         var repeats = 0;
@@ -127,24 +126,22 @@ var runChromeDevTools = function ( context )
 
                         if( repeats )
                         {
-                            result.output += " " + repeats + " repeats";
+                            result.output += " " + chalk.yellow( repeats + " repeats" );
                         }
-
-                        result.output += "\n  " + result.rule.url;
 
                         if( elementFailures.length > repeats )
                         {
+                            result.output += "\n  " + chalk.cyan.underline( result.rule.url );
                             result.output += failureDetails + "\n";
-
-                            ( result.warning ? context.addWarning : context.addFailure )(
-                                result.output, { specName: testHeader + result.rule.heading } );
+                            var outputType = result.warning ? context.addWarning : context.addFailure;
+                            outputType( result.output, { specName: testHeader + result.rule.heading } );
                         }
                         else
                         {
                             result.output += "\n";
                         }
 
-                        console.warn( result.output );
+                        console.log( result.output );
                     }
                     else
                     {
