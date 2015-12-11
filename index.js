@@ -4,23 +4,6 @@ var q = require( "q" );
 var fs = require( "fs" );
 var chalk = require( "chalk" );
 
-/**
- * You can audit your website against the Chrome Accessibility Developer Tools
- * by enabling this plugin in your config file:
- *
- *    // Chrome Accessibility Developer Tools:
- *    exports.config = {
- *      ...
- *      plugins: [{
- *        chromeA11YDevTools: {
- *          treatWarningsAsFailures: true,
- *          axsConfig: {}
- *        },
- *        path: 'node_modules/protractor.plugins/accessiblity'
- *      }]
- *    }
- */
-
 var trimText = function ( text, elementStringLength )
 {
     if( text.length > elementStringLength )
