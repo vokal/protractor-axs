@@ -8,7 +8,7 @@ Protractor will run each set of audits (depending on your configuration) on your
 Protractor now supports the [Accessibility Developer Tools](https://github.com/GoogleChrome/accessibility-developer-tools), the same audit library used by the [Chrome browser extension](https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb?hl=en). Protractor
 [runs an audit](https://github.com/GoogleChrome/accessibility-developer-tools/wiki/Audit-Rules) locally by injecting the Dev Tools script into WebDriver pages, and it can diagnose issues including missing labels, incorrect ARIA attributes and color contrast.
 
-Enable this plugin in your config file:
+Enable this plugin in your Protractor config file:
 ```js
   exports.config = {
       ...
@@ -24,4 +24,4 @@ Enable this plugin in your config file:
 
 ### axsConfig
 
-An optional options object can be used to configure the validation rules. [See this page for options](https://github.com/GoogleChrome/accessibility-developer-tools/blob/master/README.md#configuring-the-audit)
+An optional that object can be used to configure the validation options. [See this page for options](https://github.com/GoogleChrome/accessibility-developer-tools/blob/master/README.md#configuring-the-audit)

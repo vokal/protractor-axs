@@ -3,6 +3,12 @@
   "name": "protractor-axs",
   "description": "Protractor plugin for accessibility testing",
   "license": "MIT",
+  "keywords": [
+    "accessibility",
+    "protractor",
+    "wcag",
+    "aria"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/vokal/protractor-axs.git"
